@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Render poster
+        run: MAKEFUN_OUTPUT_DIR=./output node main.ts
+      - name: Check entry.png
+        run: |
+          test -f output/entry.png
+          file output/entry.png | grep -q "PNG image data, 1024 x 1024"
+          size=$(stat -c%s output/entry.png)
+          echo "entry.png is $size bytes"
+          test "$size" -lt 1048576
